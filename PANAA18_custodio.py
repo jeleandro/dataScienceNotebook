@@ -12,12 +12,9 @@ import glob;
 import json;
 import codecs;
 import argparse;
-import pprint;
 from scipy.sparse import issparse
 
-
 from time import time
-import logging
 
 
 #data analysis libs
@@ -25,19 +22,16 @@ import numpy as np;
 
 #machine learning libs
 #feature extraction
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 #preprocessing and transformation
-from sklearn.preprocessing import normalize, Normalizer, MaxAbsScaler, LabelBinarizer;
+from sklearn.preprocessing import MaxAbsScaler;
 from sklearn.decomposition import PCA;
 
 from sklearn.base import BaseEstimator
 
 #classifiers
 from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
-from sklearn.neural_network import MLPClassifier
-
-from sklearn.ensemble import AdaBoostClassifier, BaggingClassifier, VotingClassifier
 
 
 from sklearn.pipeline import Pipeline
@@ -140,7 +134,7 @@ def printSysInfo():
 
 
 
-def runML(problem):
+def runML(problem, outputDir):
     print ("Problem: %s,  language: %s " %(problem['problem'],problem['language']))
     
     train_docs, train_labels, _   = zip(*problem['candidates'])
@@ -214,11 +208,7 @@ def runML(problem):
 
         clfFinal = Pipeline([
             ('pca', PCA(0.99)),
-            ('clf',MLPClassifier(
-                    activation='identity',
-                    hidden_layer_sizes=(xtrain_mix.shape[1]),
-                    random_state=0
-                    )
+            ('clf',LogisticRegression(random_state=0,multi_class='multinomial', solver='newton-cg')
             )
         ], memory=cachedir);
         clfFinal.fit(xtrain_mix, train_labels);
@@ -244,6 +234,7 @@ def runML(problem):
 
 
 def main(inputDir,outpath):
+    t0 = time()
     printSysInfo();
     
     problems = readCollectionsOfProblems(inputDir);
@@ -258,7 +249,8 @@ def main(inputDir,outpath):
         problem['unknown'] = read_files(pathjoin(inputDir, problem['problem']),unk_folder);
         
     for problem in problems:
-        runML(problem);
+        runML(problem, outpath);
+    print("total in %0.3fs \n" % (time() - t0))
         
 
 
@@ -268,17 +260,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PAN-18 Authorship Attribution by Custodio')
     parser.add_argument('-i', type=str, help='Path to the main folder of a collection of attribution problems')
     parser.add_argument('-o', type=str, help='Path to an output folder')
-    #parser.add_argument('-n', type=int, default=3, help='n-gram order (default=3)')
-    #parser.add_argument('-ft', type=int, default=5, help='frequency threshold (default=5)')
-    #parser.add_argument('-c', type=str, default='OneVsRest', help='OneVsRest or OneVsOne (default=OneVsRest)')
     
     #baseDir = '/Users/joseeleandrocustodio/Dropbox/mestrado/02 - Pesquisa/code';
 
-    inputDir= pathjoin(baseDir,'pan18aa');
-    outputDir= pathjoin(baseDir,'out');
+    #inputDir= pathjoin(baseDir,'pan18aa');
+    #outputDir= pathjoin(baseDir,'out');
     
-    main(inputDir, outputDir)
-'''
+    #main(inputDir, outputDir)
+
     args = parser.parse_args()
     if not args.i:
         print('ERROR: The input folder is required')
@@ -286,5 +275,5 @@ if __name__ == '__main__':
     if not args.o:
         print('ERROR: The output folder is required')
         parser.exit(1)
-'''    
-    #main(args.i, args.o)
+    
+    main(args.i, args.o)
