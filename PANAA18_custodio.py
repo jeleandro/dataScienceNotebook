@@ -256,17 +256,17 @@ def main(inputDir,outpath):
 
 if __name__ == '__main__':
     #original main
-    parser = argparse.ArgumentParser()
-    parser = argparse.ArgumentParser(description='PAN-18 Authorship Attribution by Custodio')
-    parser.add_argument('-i', type=str, help='Path to the main folder of a collection of attribution problems')
-    parser.add_argument('-o', type=str, help='Path to an output folder')
+    #parser = argparse.ArgumentParser()
+    #parser = argparse.ArgumentParser(description='PAN-18 Authorship Attribution by Custodio')
+    #parser.add_argument('-i', type=str, help='Path to the main folder of a collection of attribution problems')
+    #parser.add_argument('-o', type=str, help='Path to an output folder')
     
-    #baseDir = '/Users/joseeleandrocustodio/Dropbox/mestrado/02 - Pesquisa/code';
+    baseDir = '/Users/joseeleandrocustodio/Dropbox/mestrado/02 - Pesquisa/code';
 
-    #inputDir= pathjoin(baseDir,'pan18aa');
-    #outputDir= pathjoin(baseDir,'out');
+    inputDir= pathjoin(baseDir,'pan18aa');
+    outputDir= pathjoin(baseDir,'out');
     
-    #main(inputDir, outputDir)
+    main(inputDir, outputDir)
 
     args = parser.parse_args()
     if not args.i:
