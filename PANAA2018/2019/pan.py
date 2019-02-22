@@ -2,8 +2,47 @@ import os;
 import json;
 import glob;
 import codecs;
+import zipfile;
 
 from os.path import join as pathjoin;
+
+
+def readCollectionsOfProblemsFromZip(path):
+    with zipfile.ZipFile(path) as zf:
+        with zf.open('collection-info.json') as collectionF:
+            problems = [ {
+                'problem': attrib['problem-name'],
+                'language': attrib['language'],
+            }
+            for attrib in json.load(collectionF)];
+            
+        fileList = zf.namelist();
+        for p in problems:
+            candidates = [];
+            with zf.open(p['problem']+os.sep+'problem-info.json') as pinfo:
+                info = json.load(pinfo);
+                p['authorCount'] = len(info['candidate-authors'])
+                for candidate in info['candidate-authors']:
+                    candidate = candidate['author-name'];
+                    
+                    for f in fileList:
+                        if p['problem'] in f and candidate in f and f.endswith('.txt'):
+                            candidates.append([zf.read(f).decode('utf-8'), candidate,None])
+                            fileList.remove(f);
+                p['candidates'] = candidates;
+                
+            unknown = []
+            with zf.open(p['problem']+os.sep+'ground-truth.json') as gt:
+                for unk in json.load(gt)['ground_truth']:
+                    unknown.append(
+                        [
+                        zf.read(p['problem']+os.sep+'unknown'+os.sep +unk['unknown-text']).decode('utf-8') ,
+                        unk['true-author'],
+                        unk['unknown-text']
+                        ]
+                    )
+            p['unknown'] = unknown;
+    return problems;
 
 
 
