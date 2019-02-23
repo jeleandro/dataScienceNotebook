@@ -19,7 +19,7 @@ def readCollectionsOfProblemsFromZip(path):
         fileList = zf.namelist();
         for p in problems:
             candidates = [];
-            with zf.open(p['problem']+os.sep+'problem-info.json') as pinfo:
+            with zf.open(p['problem']+'/problem-info.json') as pinfo:
                 info = json.load(pinfo);
                 p['authorCount'] = len(info['candidate-authors'])
                 for candidate in info['candidate-authors']:
@@ -32,11 +32,11 @@ def readCollectionsOfProblemsFromZip(path):
                 p['candidates'] = candidates;
                 
             unknown = []
-            with zf.open(p['problem']+os.sep+'ground-truth.json') as gt:
+            with zf.open(p['problem']+'/ground-truth.json') as gt:
                 for unk in json.load(gt)['ground_truth']:
                     unknown.append(
                         [
-                        zf.read(p['problem']+os.sep+'unknown'+os.sep +unk['unknown-text']).decode('utf-8') ,
+                        zf.read(p['problem']+'/unknown/' +unk['unknown-text']).decode('utf-8') ,
                         unk['true-author'],
                         unk['unknown-text']
                         ]
